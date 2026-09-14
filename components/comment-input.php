@@ -22,7 +22,7 @@
                     <?php endif; ?>
                     <!--私密评论选择-->
                     <div class="custom-control custom-checkbox">
-                        <input data-toggle="tooltip" data-placement="top" title="<?php echo $GLOBALS['t']['comment']['secretCommentDescription']; ?>" type="checkbox" class="custom-control-input" id="hide-comment">
+                        <input data-toggle="tooltip" data-placement="top" title="<?php echo $GLOBALS['t']['comment']['secretCommentDescription']; ?>" type="checkbox" class="custom-control-input" name="hide-comment" id="hide-comment">
                         <label class="custom-control-label" for="hide-comment"><?php echo $GLOBALS['t']['comment']['secretComment']; ?></label>
                     </div>
                 </div>
