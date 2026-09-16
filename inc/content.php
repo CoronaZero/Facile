@@ -529,6 +529,12 @@ function canViewHideContent($type, $cid = 0) {
         return false;
     }
 
+    // 邮箱必须附带正确的 HMAC 签名 cookie，防止 cookie 邮箱被伪造
+    if (!hash_equals(facileMailSig($mail), (string)Typecho_Cookie::get('__facile_mail_sig'))) {
+        $permissionCache[$cacheKey] = false;
+        return false;
+    }
+
     $db = Typecho_Db::get();
     $comment = $db->fetchRow($db->select()->from('table.comments')
         ->where('cid = ?', $cid)

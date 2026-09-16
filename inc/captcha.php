@@ -28,32 +28,41 @@ function commentCaptchaEnabled() {
 
 
 /**
- * 生成验证码校验值
+ * 获取站点密钥
  *
- * 把算数题答案和生成时间放在一起，用密钥运算出一个校验值，
- * 校验值会随表单输出给访客，提交评论时再重新运算比对。
  * 密钥取自后台设置；未填写时回退到 Typecho 安装密钥
  * __TYPECHO_SECURE_CODE__（每站唯一且不对外暴露），
  * 若该常量也不存在则用站点路径派生，避免使用公开已知的固定默认值。
+ * 验证码校验和私密评论邮箱签名共用此密钥。
+ *
+ * @return string 站点密钥
+ */
+function facileSiteSecret() {
+    $secret = trim(Helper::options()->commentCaptchaSecret);
+
+    if ($secret == '') {
+        if (defined('__TYPECHO_SECURE_CODE__') && __TYPECHO_SECURE_CODE__) {
+            $secret = __TYPECHO_SECURE_CODE__;
+        } else {
+            $secret = sha1(__FILE__ . '|' . Helper::options()->siteUrl);
+        }
+    }
+
+    return $secret;
+}
+
+/**
+ * 生成验证码校验值
+ *
+ * 把算数题答案和生成时间放在一起，用站点密钥运算出一个校验值，
+ * 校验值会随表单输出给访客，提交评论时再重新运算比对。
  *
  * @param int $answer 算数题答案
  * @param int $time 生成验证码的时间戳
  * @return string 校验值
  */
 function commentCaptchaHash($answer, $time) {
-    $secret = trim(Helper::options()->commentCaptchaSecret);
-
-    if ($secret == '') {
-        // 回退到 Typecho 安装密钥，每站唯一且不通过任何接口对外暴露
-        if (defined('__TYPECHO_SECURE_CODE__') && __TYPECHO_SECURE_CODE__) {
-            $secret = __TYPECHO_SECURE_CODE__;
-        } else {
-            // 极端回退：用文件路径 + 站点地址派生，至少保证每站不同
-            $secret = sha1(__FILE__ . '|' . Helper::options()->siteUrl);
-        }
-    }
-
-    return hash_hmac('sha256', $answer . '|' . $time, $secret);
+    return hash_hmac('sha256', $answer . '|' . $time, facileSiteSecret());
 }
 
 
@@ -314,3 +323,35 @@ Typecho_Plugin::factory('Widget_Feedback')->comment = 'commentSecretComment';
 
 // 注册评论验证码校验钩子
 Typecho_Plugin::factory('Widget_Feedback')->comment = 'commentCaptchaFilter';
+
+/**
+ * 为访客邮箱生成 HMAC 签名
+ *
+ * 私密评论权限依赖 cookie 中的邮箱，但明文 cookie 可被任意伪造。
+ * 评论提交成功后签发 HMAC 签名 cookie，私密内容校验时要求两者匹配，
+ * 攻击者即使知道邮箱也无法伪造签名（缺少站点密钥）。
+ *
+ * @param string $mail 邮箱
+ * @return string HMAC 签名
+ */
+function facileMailSig($mail) {
+    return hash_hmac('sha256', 'mailsig|' . $mail, facileSiteSecret());
+}
+
+/**
+ * 评论提交时签发邮箱 HMAC 签名 cookie
+ *
+ * @param array $comment 评论数据
+ * @param Widget_Archive $post 评论所属的文章对象
+ * @return array 评论数据
+ */
+function facileSignMailSig($comment, $post) {
+    $mail = isset($comment['mail']) ? $comment['mail'] : '';
+    if (!empty($mail)) {
+        setcookie('__facile_mail_sig', facileMailSig($mail), time() + 2592000, '/');
+    }
+    return $comment;
+}
+
+// 注册评论邮箱签名钩子
+Typecho_Plugin::factory('Widget_Feedback')->comment = 'facileSignMailSig';

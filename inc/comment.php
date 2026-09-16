@@ -67,7 +67,10 @@ function parseSecretComment($content, $comment) {
 
     // 3. 判断是否为当前评论的访客 (针对未登录的普通访客，比对 Cookie 中的邮箱)
     $rememberMail = Typecho_Cookie::get('__typecho_remember_mail');
-    $isGuestAuthor = !empty($rememberMail) && ($rememberMail === $comment->mail);
+    // 邮箱必须附带正确的 HMAC 签名 cookie，防止 cookie 邮箱被伪造
+    $hasMailSig = !empty($rememberMail)
+        && hash_equals(facileMailSig($rememberMail), (string)Typecho_Cookie::get('__facile_mail_sig'));
+    $isGuestAuthor = $hasMailSig && ($rememberMail === $comment->mail);
 
     // 综合判断是否有权限查看隐藏内容
     $canView = $isAdmin || $isLoggedInAuthor || $isGuestAuthor;
