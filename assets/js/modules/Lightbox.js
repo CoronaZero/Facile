@@ -201,7 +201,7 @@ export default class Lightbox {
       <a href="javascript:;" aria-label="${window.t.nextImage}" title="${window.t.nextImage}" class="next-image" role="button">
         <i class="icon-chevron-right"></i>
       </a>
-      <p id="img-alt" aria-live="polite">${this.imgEl.alt}</p>
+      <p id="img-alt" aria-live="polite"></p>
       <div class="loading-animation">
         <div class="spinner-border text-light" role="status">
           <span class="sr-only">Loading...</span>
@@ -211,6 +211,8 @@ export default class Lightbox {
     `;
     // 把图片灯箱HTML插入到页面
     $('body').append(lightboxHtml);
+    // 用 text 安全写入 alt，避免 alt 中的 HTML 字符注入灯箱
+    $('#img-alt').text(this.imgEl.alt);
 
     // 创建一张图片
     const imgEl = document.createElement('img');
@@ -554,7 +556,7 @@ export default class Lightbox {
     this.imgEl.src = newImgUrl;
     this.imgEl.alt = $('.post-content img').eq(this.imgIndex).attr('alt');
     // 设置图片 alt 文字显示
-    $('#img-alt').html(this.imgEl.alt);
+    $('#img-alt').text(this.imgEl.alt);
     // 重新设置当前图片的序号和总数量
     $('#max-img-box #img-counter').html(`${this.imgIndex + 1}/${this.imgCount}`);
 
