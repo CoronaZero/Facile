@@ -30,6 +30,16 @@ export default class GithubRepositoryShowcase {
   githubUserName = '';
 
   /**
+   * HTML 转义，防止 API 返回数据中的 HTML 字符注入 DOM
+   * GitHub 仓库名受字符集限制较安全，但 description 为用户自由输入文本
+   */
+  static escapeHtml(str) {
+    return String(str == null ? '' : str).replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+
+  /**
    * 模块初始化方法
    * 绑定事件并触发第一次数据加载
    * @returns {boolean|void} 如果当前页面没有仓库容器，则直接返回 false
@@ -100,8 +110,10 @@ export default class GithubRepositoryShowcase {
 
         data.forEach(item => {
           // 防止 API 返回 null 时在页面上显示 "null"
-          const description = item.description || window.t.noDescription;
-          const language = item.language || window.t.unknown;
+          const description = GithubRepositoryShowcase.escapeHtml(item.description || window.t.noDescription);
+          const language = GithubRepositoryShowcase.escapeHtml(item.language || window.t.unknown);
+          const name = GithubRepositoryShowcase.escapeHtml(item.name);
+          const htmlUrl = GithubRepositoryShowcase.escapeHtml(item.html_url);
 
           // 生成 github 仓库列表
           repositoryListHtml += `
@@ -109,7 +121,7 @@ export default class GithubRepositoryShowcase {
             <div class="card">
               <div class="card-body">
                 <h5 class="card-title">
-                  <a href="${item.html_url}" target="_blank">${item.name}</a>
+                  <a href="${htmlUrl}" target="_blank">${name}</a>
                 </h5>
                 <p class="card-text my-2" title="${description}">${description}</p>
               </div>
