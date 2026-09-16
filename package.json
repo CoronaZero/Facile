@@ -1,0 +1,21 @@
+{
+  "name": "facile",
+  "version": "0.0.0",
+  "description": "Facile — a Typecho blog theme",
+  "private": true,
+  "scripts": {
+    "prepare-src": "node 拷贝前端文件用于打包.js",
+    "build": "node 拷贝前端文件用于打包.js && webpack --mode production"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "css-loader": "^7.1.2",
+    "css-minimizer-webpack-plugin": "^7.0.0",
+    "mini-css-extract-plugin": "^2.9.2",
+    "sass": "^1.83.0",
+    "sass-loader": "^16.0.4",
+    "terser-webpack-plugin": "^5.3.11",
+    "webpack": "^5.97.1",
+    "webpack-cli": "^6.0.0"
+  }
+}
