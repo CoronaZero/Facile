@@ -1,0 +1,75 @@
+# Facile 主题构建与发布
+#
+# 触发方式：
+#   1. push 到 main —— 自动发布预发布版（pre-release），tag 为时间戳 YYYYMMDDHHmmss
+#   2. 手动触发 workflow_dispatch —— 可选 pre 或 stable：
+#        pre    —— tag 为时间戳 YYYYMMDDHHmmss，标记为预发布
+#        stable —— tag 为 v年.月.日（如 v26.9.16），标记为正式发布
+#
+# 构建流程：npm install → 拷贝前端文件到 src/ → webpack 打包到 dist/ →
+#           运行打包脚本生成 Facile/ 目录 → zip → 创建 GitHub Release
+
+name: Build and Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 发布类型
+        required: true
+        type: choice
+        default: pre
+        options:
+          - pre
+          - stable
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build frontend (src → dist)
+        run: npm run build
+
+      - name: Generate version tag
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.release_type }}" = "stable" ]; then
+            TAG="v$(date '+%y').$(date '+%-m').$(date '+%-d')"
+            IS_PRERELEASE=false
+          else
+            TAG="$(date '+%Y%m%d%H%M%S')"
+            IS_PRERELEASE=true
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "prerelease=$IS_PRERELEASE" >> "$GITHUB_OUTPUT"
+
+      - name: Package theme
+        run: |
+          # 打包脚本通过 stdin 接收两个回答：不加网站信息(n)、版本号
+          printf 'n\n%s\n' "${{ steps.version.outputs.tag }}" | node 拷贝和修改文件用于最终的打包.js
+          cd Facile && zip -r "../Facile-${{ steps.version.outputs.tag }}.zip" . && cd ..
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: ${{ steps.version.outputs.tag }}
+          prerelease: ${{ steps.version.outputs.prerelease }}
+          files: Facile-${{ steps.version.outputs.tag }}.zip
+          generate_release_notes: true
