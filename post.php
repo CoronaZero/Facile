@@ -1,9 +1,24 @@
 <?php
 if (!defined('__TYPECHO_ROOT_DIR__')) exit;
 $GLOBALS['page'] = 'post';
+
+// 点赞 CSRF token：基于 cid 和站点密钥的 HMAC，无状态校验，攻击者无法跨站伪造
+function facileAgreeToken($cid) {
+    $secret = trim(Helper::options()->commentCaptchaSecret);
+    if ($secret == '') {
+        if (defined('__TYPECHO_SECURE_CODE__') && __TYPECHO_SECURE_CODE__) {
+            $secret = __TYPECHO_SECURE_CODE__;
+        } else {
+            $secret = sha1(__FILE__ . '|' . Helper::options()->siteUrl);
+        }
+    }
+    return hash_hmac('sha256', 'agree|' . $cid, $secret);
+}
+
 //  点赞请求
 if (isset($_POST['agree'])) {
-    if ($_POST['agree'] == $this->cid) {
+    $submittedToken = isset($_POST['agree_token']) ? $_POST['agree_token'] : '';
+    if ($_POST['agree'] == $this->cid && hash_equals(facileAgreeToken($this->cid), $submittedToken)) {
         exit((string)agree($this->cid));
     }
     exit('error');
@@ -168,7 +183,7 @@ $this->need('components/header.php');
                             <?php foreach ($engagementSection as $val): ?>
                                 <?php if ($val == '点赞'): ?>
                                     <?php $agree = $this->hidden?array('agree' => 0, 'recording' => true):agreeNum($this->cid); ?>
-                                    <button type="button" class="btn btn-sm agree-btn mr-2" <?php if ($agree['recording']) echo 'disabled'; ?> data-cid="<?php echo $this->cid; ?>" data-url="<?php $this->permalink(); ?>">
+                                    <button type="button" class="btn btn-sm agree-btn mr-2" <?php if ($agree['recording']) echo 'disabled'; ?> data-cid="<?php echo $this->cid; ?>" data-token="<?php echo facileAgreeToken($this->cid); ?>" data-url="<?php $this->permalink(); ?>">
                                         <i class="icon-thumbs-up"></i>
                                         <span class="agree-num"><?php echo $GLOBALS['t']['post']['like']; ?> <?php echo $agree['agree']; ?></span>
                                     </button>

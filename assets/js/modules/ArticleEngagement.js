@@ -30,7 +30,7 @@ export default class ArticleEngagement {
         $.ajax({
           type: 'post',
           url: $('.agree-btn').attr('data-url'),
-          data: 'agree=' + $('.agree-btn').attr('data-cid'),
+          data: 'agree=' + $('.agree-btn').attr('data-cid') + '&agree_token=' + $('.agree-btn').attr('data-token'),
           async: true,
           timeout: 15000,
           cache: false,
