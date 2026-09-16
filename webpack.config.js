@@ -34,7 +34,20 @@ module.exports = {
     rules: [
       {
         test: /\.scss$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader']
+        use: [
+          MiniCssExtractPlugin.loader,
+          'css-loader',
+          {
+            loader: 'sass-loader',
+            options: {
+              sassOptions: {
+                // style.scss 的 @import 嵌套在选择器块内（如 .stackoverflow-light），
+                // 无法迁移为 @use，静默 Dart Sass 对 @import 的弃用警告（3.0 才移除）
+                silenceDeprecations: ['import']
+              }
+            }
+          }
+        ]
       },
       {
         test: /\.css$/,
