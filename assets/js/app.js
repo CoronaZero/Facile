@@ -17,7 +17,7 @@ import AvatarGenerator from './modules/AvatarGenerator.js';
 import ArticleEngagement from './modules/ArticleEngagement.js';
 import loadMore from './modules/loadMore.js';
 import GithubRepositoryShowcase from './modules/GithubRepositoryShowcase.js';
-import Captcha from './modules/Captcha.js';
+import Captcha from './modules/captcha.js';
 
 $(function () {
   let inputFocus = false;  // 表单焦点状态
