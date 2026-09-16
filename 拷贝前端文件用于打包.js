@@ -158,6 +158,24 @@ function main() {
   writeUtf8(iconCssFile, newIconCss);
   log('  已把 ../fonts/ 全部改写为 ./fonts/');
 
+  // ---- 4.5 生成 webpack CSS 打包入口 ----
+  // webpack 的 style 入口指向此文件，由 sass-loader 编译 style.scss 并内联，
+  // 再由 css-loader 解析 bootstrap.css / icon.css 的 @import，最终合并为单个 style-*.css
+  step('生成 src/style/index.scss（webpack CSS 打包入口）');
+  const indexScssFile = path.join(SRC_STYLE, 'index.scss');
+  const indexScssContent = [
+    '// webpack CSS 打包入口，合并 bootstrap + 主题样式 + 图标字体',
+    '@import "bootstrap.css";',
+    '@import "style.scss";',
+    '@import "icon.css";',
+    ''
+  ].join('\n');
+  writeUtf8(indexScssFile, indexScssContent);
+  if (!fs.existsSync(indexScssFile)) {
+    fail('index.scss 生成失败：' + indexScssFile);
+  }
+  log('  已生成：src/style/index.scss');
+
   // ---- 5. 生成 src/js/app.js ----
   step('生成 src/js/app.js');
   const sourceAppFile = path.join(ASSETS, 'js', 'app.js');
