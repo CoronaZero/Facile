@@ -355,3 +355,39 @@ function facileSignMailSig($comment, $post) {
 
 // 注册评论邮箱签名钩子
 Typecho_Plugin::factory('Widget_Feedback')->comment = 'facileSignMailSig';
+
+/**
+ * 验证码请求频率限制
+ *
+ * 同一 IP 至少间隔 3 秒才能再次请求验证码图片，防止 GD 图片生成
+ * 被高频请求滥用导致 CPU 耗尽。用临时文件做时间窗口记录，
+ * 目录不可写时自动跳过限流，不阻断正常功能。
+ *
+ * @return bool true 表示放行，false 表示请求过于频繁
+ */
+function facileCaptchaRateLimit() {
+    $ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
+    if (empty($ip)) {
+        return true;
+    }
+
+    $cacheDir = sys_get_temp_dir() . '/facile_captcha';
+    if (!is_dir($cacheDir)) {
+        @mkdir($cacheDir, 0755, true);
+    }
+    $cacheFile = $cacheDir . '/' . md5($ip) . '.txt';
+
+    $now = time();
+    $minInterval = 3;
+
+    clearstatcache(true, $cacheFile);
+    if (is_file($cacheFile)) {
+        $lastTime = (int)@file_get_contents($cacheFile);
+        if ($now - $lastTime < $minInterval) {
+            return false;
+        }
+    }
+
+    @file_put_contents($cacheFile, $now);
+    return true;
+}

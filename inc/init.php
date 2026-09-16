@@ -23,6 +23,13 @@
 function themeInit($archive) {
     // 输出评论图片验证码
     if ((isset($_GET['action']) && $_GET['action'] == 'captcha') || (isset($_POST['action']) && $_POST['action'] == 'captcha')) {
+        // 频率限制，防止 GD 图片生成被高频请求滥用
+        if (!facileCaptchaRateLimit()) {
+            http_response_code(429);
+            header('Content-Type: application/json');
+            echo json_encode(array('result' => 'error', 'message' => 'Too many requests'));
+            exit;
+        }
         commentCaptchaImage();
         // 输出 JSON 后立即终止执行，避免把整个页面内容附加到验证码响应里
         exit;
