@@ -28,7 +28,7 @@ function reply($parent) {
 
     $db = Typecho_Db::get();
     $commentInfo = $db->fetchRow($db->select('author,status,mail')->from('table.comments')->where('coid = ?', $parent));
-    $link = '<span class="mx-2">' . $GLOBALS['t']['comment']['reply'] . '</span><b><a class="parent mr-1" href="#comment-' . $parent . '">' . $commentInfo['author'] .  '</a></b>';
+    $link = '<span class="mx-2">' . $GLOBALS['t']['comment']['reply'] . '</span><b><a class="parent mr-1" href="#comment-' . $parent . '">' . htmlspecialchars($commentInfo['author'], ENT_QUOTES, 'UTF-8') . '</a></b>';
     return $link;
 }
 
