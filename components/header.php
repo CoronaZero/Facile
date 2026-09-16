@@ -188,16 +188,16 @@ $bodyClass = implode(' ', $bodyClass);
                         <?php foreach ($navLinks as $link): ?>
                             <?php if (isset($link['menu']) && count($link['menu'])): ?>
                                 <li class="nav-item dropdown">
-                                    <a href="javascript:;" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><?php echo $link['name']; ?></a>
+                                    <a href="javascript:;" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><?php echo htmlspecialchars($link['name'], ENT_QUOTES, 'UTF-8'); ?></a>
                                     <div class="dropdown-menu">
                                         <?php foreach ($link['menu'] as $menuItem): ?>
-                                            <a class="dropdown-item" href="<?php echo $menuItem['url']; ?>"><?php echo $menuItem['name']; ?></a>
+                                            <a class="dropdown-item" href="<?php echo htmlspecialchars($menuItem['url'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($menuItem['name'], ENT_QUOTES, 'UTF-8'); ?></a>
                                         <?php endforeach; ?>
                                     </div>
                                 </li>
                             <?php else: ?>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="<?php echo $link['url']; ?>"><?php echo $link['name']; ?></a>
+                                    <a class="nav-link" href="<?php echo htmlspecialchars($link['url'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($link['name'], ENT_QUOTES, 'UTF-8'); ?></a>
                                 </li>
                             <?php endif; ?>
                         <?php endforeach; ?>

@@ -288,8 +288,8 @@ $components = explode(',', $components);
                             <?php $links = json_decode($this->options->links); ?>
                             <?php foreach ($links as $link): ?>
                                 <li>
-                                    <a href="<?php echo $link->url; ?>" title="<?php echo isset($link->title)?$link->title:$link->name; ?>" target="_blank" data-toggle="tooltip" data-placement="top">
-                                        <?php echo $link->name; ?>
+                                    <a href="<?php echo htmlspecialchars($link->url, ENT_QUOTES, 'UTF-8'); ?>" title="<?php echo htmlspecialchars(isset($link->title) ? $link->title : $link->name, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" data-toggle="tooltip" data-placement="top">
+                                        <?php echo htmlspecialchars($link->name, ENT_QUOTES, 'UTF-8'); ?>
                                     </a>
                                 </li>
                             <?php endforeach; ?>
@@ -298,8 +298,8 @@ $components = explode(',', $components);
                             <?php $links = json_decode($this->options->homeLinks); ?>
                             <?php foreach ($links as $link): ?>
                                 <li>
-                                    <a href="<?php echo $link->url; ?>" title="<?php echo isset($link->title)?$link->title:$link->name; ?>" target="_blank" data-toggle="tooltip" data-placement="top">
-                                        <?php echo $link->name; ?>
+                                    <a href="<?php echo htmlspecialchars($link->url, ENT_QUOTES, 'UTF-8'); ?>" title="<?php echo htmlspecialchars(isset($link->title) ? $link->title : $link->name, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" data-toggle="tooltip" data-placement="top">
+                                        <?php echo htmlspecialchars($link->name, ENT_QUOTES, 'UTF-8'); ?>
                                     </a>
                                 </li>
                             <?php endforeach; ?>

@@ -73,14 +73,14 @@ $this->need('components/header.php');
                                     <?php foreach ($link['links'] as $val): ?>
                                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 col-12 link mb-3">
                                             <?php if (isset($val->logoUrl)): ?>
-                                                <img class="logo mr-2" src="<?php echo $val->logoUrl; ?>" alt="<?php echo $val->name; ?>">
+                                                <img class="logo mr-2" src="<?php echo htmlspecialchars($val->logoUrl, ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars($val->name, ENT_QUOTES, 'UTF-8'); ?>">
                                             <?php else: ?>
-                                                <div aria-label="<?php echo $val->name; ?>" role="img" class="logo-icon mr-2">
+                                                <div aria-label="<?php echo htmlspecialchars($val->name, ENT_QUOTES, 'UTF-8'); ?>" role="img" class="logo-icon mr-2">
                                                     <i class="icon-link"></i>
                                                 </div>
                                             <?php endif; ?>
-                                            <a href="<?php echo $val->url; ?>" title="<?php echo isset($val->title)?$val->title:$val->name; ?>" target="_blank" data-toggle="tooltip" data-placement="top">
-                                                <?php echo $val->name; ?>
+                                            <a href="<?php echo htmlspecialchars($val->url, ENT_QUOTES, 'UTF-8'); ?>" title="<?php echo htmlspecialchars(isset($val->title) ? $val->title : $val->name, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" data-toggle="tooltip" data-placement="top">
+                                                <?php echo htmlspecialchars($val->name, ENT_QUOTES, 'UTF-8'); ?>
                                             </a>
                                         </div>
                                     <?php endforeach; ?>
