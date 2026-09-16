@@ -32,7 +32,9 @@ function commentCaptchaEnabled() {
  *
  * 把算数题答案和生成时间放在一起，用密钥运算出一个校验值，
  * 校验值会随表单输出给访客，提交评论时再重新运算比对。
- * 密钥取自后台设置，没有填写时使用默认密钥 12345678。
+ * 密钥取自后台设置；未填写时回退到 Typecho 安装密钥
+ * __TYPECHO_SECURE_CODE__（每站唯一且不对外暴露），
+ * 若该常量也不存在则用站点路径派生，避免使用公开已知的固定默认值。
  *
  * @param int $answer 算数题答案
  * @param int $time 生成验证码的时间戳
@@ -42,7 +44,13 @@ function commentCaptchaHash($answer, $time) {
     $secret = trim(Helper::options()->commentCaptchaSecret);
 
     if ($secret == '') {
-        $secret = '12345678';
+        // 回退到 Typecho 安装密钥，每站唯一且不通过任何接口对外暴露
+        if (defined('__TYPECHO_SECURE_CODE__') && __TYPECHO_SECURE_CODE__) {
+            $secret = __TYPECHO_SECURE_CODE__;
+        } else {
+            // 极端回退：用文件路径 + 站点地址派生，至少保证每站不同
+            $secret = sha1(__FILE__ . '|' . Helper::options()->siteUrl);
+        }
     }
 
     return hash_hmac('sha256', $answer . '|' . $time, $secret);
