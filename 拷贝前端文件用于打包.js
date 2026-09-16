@@ -256,6 +256,21 @@ function main() {
     log('  已拷贝：' + name);
   }
 
+  // ---- 6.5 拷贝 jquery.pjax.js ----
+  // PJAX.js 模块顶部会注入 import './../jquery.pjax.js'，
+  // 相对于 src/js/modules/ 解析为 src/js/jquery.pjax.js，需要把它拷贝过去
+  step('拷贝 jquery.pjax.js 到 src/js');
+  const pjaxSrcFile = path.join(ASSETS, 'js', 'jquery.pjax.js');
+  const pjaxDestFile = path.join(SRC_JS, 'jquery.pjax.js');
+  if (!fs.existsSync(pjaxSrcFile)) {
+    fail('源文件不存在：' + pjaxSrcFile);
+  }
+  fs.copyFileSync(pjaxSrcFile, pjaxDestFile);
+  if (!fs.existsSync(pjaxDestFile)) {
+    fail('拷贝失败，目标文件未生成：' + pjaxDestFile);
+  }
+  log('  已拷贝：jquery.pjax.js');
+
   // ---- 7. 修改模块文件，添加 import ----
   step('在模块文件顶部添加 import');
   const importNames = Object.keys(MODULE_IMPORTS);
